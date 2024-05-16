@@ -1,0 +1,20 @@
+{
+	"name": "MetadataDrivenCopyTask_4km_ControlDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "MetadataDrivenCopyTask_4km_20240502"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "controltable",
+			"table": "MainControlTable_4km"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

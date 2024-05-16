@@ -1,0 +1,63 @@
+{
+	"name": "pl_trigger_dflow",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_mdct_partitioned_parameterised",
+						"type": "DataFlowReference",
+						"parameters": {
+							"Destination1": {
+								"value": "'@{pipeline().parameters.dest}'",
+								"type": "Expression"
+							},
+							"cw_schema": {
+								"value": "'@{pipeline().parameters.sch}'",
+								"type": "Expression"
+							},
+							"cw_table": {
+								"value": "'@{pipeline().parameters.tbl}'",
+								"type": "Expression"
+							},
+							"fileStore": "'landing'"
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"dest": {
+				"type": "string"
+			},
+			"sch": {
+				"type": "string"
+			},
+			"tbl": {
+				"type": "string"
+			},
+			"fileStore": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-06T10:02:44Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

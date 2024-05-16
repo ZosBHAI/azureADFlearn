@@ -1,0 +1,339 @@
+{
+	"name": "pl_incr_jdbc_sql_child",
+	"properties": {
+		"activities": [
+			{
+				"name": "incr_read_jdbc",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"additionalColumns": [
+							{
+								"name": "row_extract_dttm",
+								"value": {
+									"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
+									"type": "Expression"
+								}
+							}
+						],
+						"sqlReaderQuery": {
+							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}')\n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}] where @{pipeline().parameters.waterfallColumn} >= DATEADD(DAY,@{pipeline().parameters.waterfallLookbackDays},GETDATE())\nELSE \n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}]",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_mddi_azuresqldb",
+						"type": "DatasetReference",
+						"parameters": {
+							"url": {
+								"value": "@pipeline().parameters.url",
+								"type": "Expression"
+							},
+							"username": {
+								"value": "@pipeline().parameters.username",
+								"type": "Expression"
+							},
+							"password": {
+								"value": "@pipeline().parameters.password",
+								"type": "Expression"
+							},
+							"database": {
+								"value": "@pipeline().parameters.database",
+								"type": "Expression"
+							},
+							"tablename": {
+								"value": "@pipeline().parameters.tablename",
+								"type": "Expression"
+							},
+							"schema": {
+								"value": "@pipeline().parameters.schema",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_mddi_parquet_parameterized",
+						"type": "DatasetReference",
+						"parameters": {
+							"storageAccount": {
+								"value": "@pipeline().parameters.storageAccount",
+								"type": "Expression"
+							},
+							"fileSystem": {
+								"value": "@pipeline().parameters.fileSystem",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "incr_blob_to_asqldb",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "incr_read_jdbc",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": {
+								"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*.parquet",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.stageSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.stageSchema}].[@{pipeline().parameters.targetTable}] \nEND",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"tableOption": "autoCreate",
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_mddi_parquet_parameterized",
+						"type": "DatasetReference",
+						"parameters": {
+							"storageAccount": {
+								"value": "@pipeline().parameters.storageAccount",
+								"type": "Expression"
+							},
+							"fileSystem": {
+								"value": "@pipeline().parameters.fileSystem",
+								"type": "Expression"
+							},
+							"directory": {
+								"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_mddi_azuresqldb",
+						"type": "DatasetReference",
+						"parameters": {
+							"url": {
+								"value": "@pipeline().parameters.url",
+								"type": "Expression"
+							},
+							"username": {
+								"value": "@pipeline().parameters.username",
+								"type": "Expression"
+							},
+							"password": {
+								"value": "@pipeline().parameters.password",
+								"type": "Expression"
+							},
+							"database": {
+								"value": "@pipeline().parameters.database",
+								"type": "Expression"
+							},
+							"tablename": {
+								"value": "@pipeline().parameters.targetTable",
+								"type": "Expression"
+							},
+							"schema": {
+								"value": "@pipeline().parameters.stageSchema",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Merge Logic",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "incr_blob_to_asqldb",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_asdb_parameterized",
+					"type": "LinkedServiceReference",
+					"parameters": {
+						"url": {
+							"value": "@pipeline().parameters.url",
+							"type": "Expression"
+						},
+						"username": {
+							"value": "@pipeline().parameters.username",
+							"type": "Expression"
+						},
+						"password": {
+							"value": "@pipeline().parameters.password",
+							"type": "Expression"
+						},
+						"database": {
+							"value": "@pipeline().parameters.database",
+							"type": "Expression"
+						}
+					}
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "DECLARE @TargetTable VARCHAR (500)\nDECLARE @StagingTable VARCHAR (500)\nDECLARE @WhereClause VARCHAR(MAX) \nDECLARE @StagingSchema VARCHAR (50)\nDECLARE @TargetSchema VARCHAR (50)\nDECLARE @FullStagingTableName VARCHAR (500)\nDECLARE @FullTargetTableName VARCHAR (500)\nDECLARE @TargetTableColumnList NVARCHAR(MAX)\nDECLARE @DeleteStatementSQL NVARCHAR (MAX)\nDECLARE @InsertStatementSQL NVARCHAR (MAX)\nDECLARE @StatisticsUpdateSQL NVARCHAR (MAX)\nSET @TargetTable = '@{pipeline().parameters.targetTable}'\nSET @TargetSchema = '@{pipeline().parameters.targetSchema}'\nSET @StagingTable = '@{pipeline().parameters.targetTable}'\nSET @StagingSchema = '@{pipeline().parameters.stageSchema}'\nSET @FullStagingTableName = CONCAT(@StagingSchema, '.', @StagingTable)\nSET @FullTargetTableName = CONCAT(@TargetSchema, '.', @TargetTable)\nSET @TargetTableColumnList = (\tSELECT \n\t\t\t\t\t\t\t\t\tColumnList = STRING_AGG('[' + col.NAME + ']', ',' )\n\t\t\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t\t\tsys.tables tab\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.schemas sch\n\t\t\t\t\t\t\t\t\t\tON tab.schema_id = sch.schema_id\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.columns col\n\t\t\t\t\t\t\t\t\t\tON tab.object_id = col.object_id\n\t\t\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\t\t\tsch.name = @TargetSchema\n\t\t\t\t\t\t\t\t\tAND tab.name = @TargetTable\n\t\t\t\t\t\t\t\t\tAND col.is_identity = 0\n\t\t\t\t\t\t\t)\n ;\n drop table if EXISTS #ADLS_Metadata;\n CREATE TABLE #ADLS_Metadata\n(\n   \n    ColumnKey VARCHAR(100),\n\tTargetTable VARCHAR(50)\n)\nINSERT INTO #ADLS_Metadata\n(\n    ColumnKey,\n    TargetTable\n)\nVALUES\n('project,Creationtime', 'dest_project_table');\n WITH PrimaryKeyList AS (\n\t\t\t\t\t\tSELECT \n\t\t\t\t\t\t\tColumnKey = RTRIM(LTRIM(Value)),\n\t\t\t\t\t\t\tRowNumber = ROW_NUMBER () OVER (ORDER BY value ASC)\n\n\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t#ADLS_Metadata\n\t\t\t\t\t\t\t\tCROSS APPLY \n\t\t\t\t\t\t\tSTRING_SPLIT( ColumnKey, ',')\n\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\tTargetTable = @TargetTable\n\t\t\t\t\t\t)\n \nSELECT\n    @WhereClause = CONCAT(\t'CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'IN (SELECT CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'FROM ', @FullStagingTableName, ')'\n\t\t\t\t\t\t)\nFROM \n    PrimaryKeyList Beg\n        LEFT JOIN\n    PrimaryKeyList E\n        ON Beg.Rownumber = E.Rownumber - 1 \n        ;\nprint @WhereClause\nSELECT\n    @DeleteStatementSQL = CONCAT('DELETE FROM ', @FullTargetTableName, ' WHERE ', @WhereClause) ;\n \nSELECT \n    @InsertStatementSQL = CONCAT('INSERT INTO ', @FullTargetTableName, ' (', @TargetTableColumnList, ') ', ' SELECT ', @TargetTableColumnList, ' FROM ', @FullStagingTableName)\n\nEXECUTE sp_executesql @DeleteStatementSQL; \n\nEXECUTE sp_executesql @InsertStatementSQL;",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"url": {
+				"type": "string"
+			},
+			"username": {
+				"type": "string"
+			},
+			"password": {
+				"type": "string"
+			},
+			"schema": {
+				"type": "string"
+			},
+			"tablename": {
+				"type": "string"
+			},
+			"storageAccount": {
+				"type": "string"
+			},
+			"fileSystem": {
+				"type": "string"
+			},
+			"directory": {
+				"type": "string"
+			},
+			"blobPartitionColumn": {
+				"type": "string"
+			},
+			"executionDate": {
+				"type": "string"
+			},
+			"database": {
+				"type": "string"
+			},
+			"targetSchema": {
+				"type": "string"
+			},
+			"targetTable": {
+				"type": "string"
+			},
+			"waterfallColumn": {
+				"type": "string"
+			},
+			"waterfallLookbackDays": {
+				"type": "int"
+			},
+			"stageSchema": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"execution_date": {
+				"type": "String"
+			},
+			"schemaName": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "MDDI_V01"
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-08T09:24:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

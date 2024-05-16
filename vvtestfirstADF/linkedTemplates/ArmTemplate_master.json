@@ -1,0 +1,173 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "vvtestfirstADF"
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage1'"
+		},
+		"ls_AzureDataLakeStorage2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_AzureDataLakeStorage2'"
+		},
+		"ls_AzureSqlDatabase_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_AzureSqlDatabase'"
+		},
+		"ls_adlsconnection_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_adlsconnection'"
+		},
+		"ls_asdb_parameterized_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_asdb_parameterized'",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().url};Initial Catalog=@{linkedService().database};User ID=@{linkedService().username};Password=@{linkedService().password}"
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vvtestadfdevsg.dfs.core.windows.net/"
+		},
+		"ls_AzureDataLakeStorage2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vvtestadfdevsg.dfs.core.windows.net/"
+		},
+		"ls_adls_parameterized_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "@{concat('https://',linkedService().storageAccount,'.dfs.core.windows.net/')}"
+		},
+		"ls_adlsconnection_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://vvtestadfdevsg.dfs.core.windows.net/"
+		},
+		"ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://kv-gen2-accesskey-adf.vault.azure.net/"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "vvtestfirstADF_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureDataLakeStorage1_accountKey": {
+						"value": "[parameters('AzureDataLakeStorage1_accountKey')]"
+					},
+					"ls_AzureDataLakeStorage2_accountKey": {
+						"value": "[parameters('ls_AzureDataLakeStorage2_accountKey')]"
+					},
+					"ls_AzureSqlDatabase_connectionString": {
+						"value": "[parameters('ls_AzureSqlDatabase_connectionString')]"
+					},
+					"ls_adlsconnection_accountKey": {
+						"value": "[parameters('ls_adlsconnection_accountKey')]"
+					},
+					"ls_asdb_parameterized_connectionString": {
+						"value": "[parameters('ls_asdb_parameterized_connectionString')]"
+					},
+					"AzureDataLakeStorage1_properties_typeProperties_url": {
+						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
+					},
+					"ls_AzureDataLakeStorage2_properties_typeProperties_url": {
+						"value": "[parameters('ls_AzureDataLakeStorage2_properties_typeProperties_url')]"
+					},
+					"ls_adlsconnection_properties_typeProperties_url": {
+						"value": "[parameters('ls_adlsconnection_properties_typeProperties_url')]"
+					},
+					"ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl": {
+						"value": "[parameters('ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "vvtestfirstADF_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "vvtestfirstADF_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ls_adls_parameterized_properties_typeProperties_url": {
+						"value": "[parameters('ls_adls_parameterized_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "vvtestfirstADF_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_2')]"
+			]
+		}
+	]
+}

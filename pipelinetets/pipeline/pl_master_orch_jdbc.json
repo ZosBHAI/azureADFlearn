@@ -1,5 +1,5 @@
 {
-	"name": "pl_master_orch",
+	"name": "pl_master_orch_jdbc",
 	"properties": {
 		"activities": [
 			{
@@ -17,13 +17,66 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderStoredProcedureName": "[controlTable].[GetExecutionDateV03]",
+						"sqlReaderStoredProcedureName": "[controlTable].[GetExecutionDateV05]",
 						"storedProcedureParameters": {
 							"execdate": {
 								"type": "String",
 								"value": null
 							},
 							"firstload": {
+								"type": "String",
+								"value": "F"
+							},
+							"previousrunstatus": {
+								"type": "String",
+								"value": null
+							},
+							"sourcename": {
+								"type": "String",
+								"value": "source1"
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_mddi_controlTable_sqldb",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "get_list_of_objects_to_be_ingested",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "generate_batch_execution_date",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[controlTable].[GetListOfObjects]",
+						"storedProcedureParameters": {
+							"previousrunstatus": {
+								"type": "String",
+								"value": {
+									"value": "@activity('generate_batch_execution_date').output.firstRow.previousrunstatus",
+									"type": "Expression"
+								}
+							},
+							"retryfailedflag": {
 								"type": "String",
 								"value": "F"
 							},
@@ -38,7 +91,8 @@
 					"dataset": {
 						"referenceName": "ds_mddi_controlTable_sqldb",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		],

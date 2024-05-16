@@ -31,14 +31,7 @@
 			{
 				"name": "Lookup2",
 				"type": "Lookup",
-				"dependsOn": [
-					{
-						"activity": "Lookup1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -50,13 +43,13 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderStoredProcedureName": "[controlTable].[GetExecutionDateV03]",
+						"sqlReaderStoredProcedureName": "[controlTable].[GetListOfObjects]",
 						"storedProcedureParameters": {
-							"execdate": {
+							"previousrunstatus": {
 								"type": "String",
-								"value": null
+								"value": "SUCCESS"
 							},
-							"firstload": {
+							"retryfailedflag": {
 								"type": "String",
 								"value": "T"
 							},
@@ -71,7 +64,8 @@
 					"dataset": {
 						"referenceName": "AzureSqlTable1",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			}
 		],

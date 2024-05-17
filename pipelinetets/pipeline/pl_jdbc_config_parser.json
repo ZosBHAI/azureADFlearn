@@ -1,0 +1,176 @@
+{
+	"name": "pl_jdbc_config_parser",
+	"properties": {
+		"activities": [
+			{
+				"name": "get_configuration",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "select  config  from [controlTable].[TestMetadataControlTable] where sourceName = '@{pipeline().parameters.source}' and tableName = '@{pipeline().parameters.tableName}'",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "check_loading_statergy",
+				"type": "Switch",
+				"dependsOn": [
+					{
+						"activity": "get_configuration",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"on": {
+						"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).DataLoadingBehaviorSettings.dataLoadingBehavior)",
+						"type": "Expression"
+					},
+					"cases": [
+						{
+							"value": "full",
+							"activities": [
+								{
+									"name": "trigger_fullload",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_fullload_jdbc_sql_child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"url": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.url)",
+												"type": "Expression"
+											},
+											"username": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.username)",
+												"type": "Expression"
+											},
+											"password": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.password)",
+												"type": "Expression"
+											},
+											"schema": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.schema)",
+												"type": "Expression"
+											},
+											"tablename": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.table)",
+												"type": "Expression"
+											},
+											"storageAccount": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.storageAccount)",
+												"type": "Expression"
+											},
+											"fileSystem": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.fileSystem)",
+												"type": "Expression"
+											},
+											"directory": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.directory)",
+												"type": "Expression"
+											},
+											"blobPartitionColumn": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.partitionColName)",
+												"type": "Expression"
+											},
+											"executionDate": {
+												"value": "@pipeline().parameters.execution_date",
+												"type": "Expression"
+											},
+											"database": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SourceObjectSettings.database)",
+												"type": "Expression"
+											},
+											"targetSchema": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.targetSchema)",
+												"type": "Expression"
+											},
+											"targetTable": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.targetTable)",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						},
+						{
+							"value": "incr",
+							"activities": [
+								{
+									"name": "increment_load",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_incr_jdbc_sql_child",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"execution_date": {
+				"type": "string",
+				"defaultValue": "2023-05-15-09-24-53"
+			},
+			"source": {
+				"type": "string",
+				"defaultValue": "source1"
+			},
+			"tableName": {
+				"type": "string",
+				"defaultValue": "project_table"
+			}
+		},
+		"variables": {
+			"loadingbehaviour": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "MDDI_V01"
+		},
+		"annotations": []
+	}
+}

@@ -257,6 +257,9 @@
 		"variables": {
 			"execution_date": {
 				"type": "String"
+			},
+			"loadingbehaviour": {
+				"type": "String"
 			}
 		},
 		"folder": {

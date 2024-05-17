@@ -27,7 +27,7 @@
 							}
 						],
 						"sqlReaderQuery": {
-							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}')\n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}] where @{pipeline().parameters.waterfallColumn} >= DATEADD(DAY,@{pipeline().parameters.waterfallLookbackDays},GETDATE())\nELSE \n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}]",
+							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}')\n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}] where @{pipeline().parameters.watermarkColumnName} >= DATEADD(DAY,@{pipeline().parameters.watermarkLookbackDays},GETDATE())\nELSE \n    Select * from [@{pipeline().parameters.schema}].[@{pipeline().parameters.tablename}]",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -262,7 +262,7 @@
 						{
 							"type": "NonQuery",
 							"text": {
-								"value": "DECLARE @TargetTable VARCHAR (500)\nDECLARE @StagingTable VARCHAR (500)\nDECLARE @WhereClause VARCHAR(MAX) \nDECLARE @StagingSchema VARCHAR (50)\nDECLARE @TargetSchema VARCHAR (50)\nDECLARE @FullStagingTableName VARCHAR (500)\nDECLARE @FullTargetTableName VARCHAR (500)\nDECLARE @TargetTableColumnList NVARCHAR(MAX)\nDECLARE @DeleteStatementSQL NVARCHAR (MAX)\nDECLARE @InsertStatementSQL NVARCHAR (MAX)\nDECLARE @StatisticsUpdateSQL NVARCHAR (MAX)\nSET @TargetTable = '@{pipeline().parameters.targetTable}'\nSET @TargetSchema = '@{pipeline().parameters.targetSchema}'\nSET @StagingTable = '@{pipeline().parameters.targetTable}'\nSET @StagingSchema = '@{pipeline().parameters.stageSchema}'\nSET @FullStagingTableName = CONCAT(@StagingSchema, '.', @StagingTable)\nSET @FullTargetTableName = CONCAT(@TargetSchema, '.', @TargetTable)\nSET @TargetTableColumnList = (\tSELECT \n\t\t\t\t\t\t\t\t\tColumnList = STRING_AGG('[' + col.NAME + ']', ',' )\n\t\t\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t\t\tsys.tables tab\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.schemas sch\n\t\t\t\t\t\t\t\t\t\tON tab.schema_id = sch.schema_id\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.columns col\n\t\t\t\t\t\t\t\t\t\tON tab.object_id = col.object_id\n\t\t\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\t\t\tsch.name = @TargetSchema\n\t\t\t\t\t\t\t\t\tAND tab.name = @TargetTable\n\t\t\t\t\t\t\t\t\tAND col.is_identity = 0\n\t\t\t\t\t\t\t)\n ;\n drop table if EXISTS #ADLS_Metadata;\n CREATE TABLE #ADLS_Metadata\n(\n   \n    ColumnKey VARCHAR(100),\n\tTargetTable VARCHAR(50)\n)\nINSERT INTO #ADLS_Metadata\n(\n    ColumnKey,\n    TargetTable\n)\nVALUES\n('project,Creationtime', 'dest_project_table');\n WITH PrimaryKeyList AS (\n\t\t\t\t\t\tSELECT \n\t\t\t\t\t\t\tColumnKey = RTRIM(LTRIM(Value)),\n\t\t\t\t\t\t\tRowNumber = ROW_NUMBER () OVER (ORDER BY value ASC)\n\n\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t#ADLS_Metadata\n\t\t\t\t\t\t\t\tCROSS APPLY \n\t\t\t\t\t\t\tSTRING_SPLIT( ColumnKey, ',')\n\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\tTargetTable = @TargetTable\n\t\t\t\t\t\t)\n \nSELECT\n    @WhereClause = CONCAT(\t'CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'IN (SELECT CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'FROM ', @FullStagingTableName, ')'\n\t\t\t\t\t\t)\nFROM \n    PrimaryKeyList Beg\n        LEFT JOIN\n    PrimaryKeyList E\n        ON Beg.Rownumber = E.Rownumber - 1 \n        ;\nprint @WhereClause\nSELECT\n    @DeleteStatementSQL = CONCAT('DELETE FROM ', @FullTargetTableName, ' WHERE ', @WhereClause) ;\n \nSELECT \n    @InsertStatementSQL = CONCAT('INSERT INTO ', @FullTargetTableName, ' (', @TargetTableColumnList, ') ', ' SELECT ', @TargetTableColumnList, ' FROM ', @FullStagingTableName)\n\nEXECUTE sp_executesql @DeleteStatementSQL; \n\nEXECUTE sp_executesql @InsertStatementSQL;",
+								"value": "DECLARE @tmp TABLE (ColumnKey VARCHAR(100),\n\tTargetTable VARCHAR(50));\nDECLARE @WatermarkColumn VARCHAR (500)\nDECLARE @TargetTable VARCHAR (500)\nDECLARE @StagingTable VARCHAR (500)\nDECLARE @WhereClause VARCHAR(MAX) \nDECLARE @StagingSchema VARCHAR (50)\nDECLARE @TargetSchema VARCHAR (50)\nDECLARE @FullStagingTableName VARCHAR (500)\nDECLARE @FullTargetTableName VARCHAR (500)\nDECLARE @TargetTableColumnList NVARCHAR(MAX)\nDECLARE @DeleteStatementSQL NVARCHAR (MAX)\nDECLARE @InsertStatementSQL NVARCHAR (MAX)\nDECLARE @StatisticsUpdateSQL NVARCHAR (MAX)\nSET @TargetTable = '@{pipeline().parameters.targetTable}'\nSET @TargetSchema = '@{pipeline().parameters.targetSchema}'\nSET @StagingTable = '@{pipeline().parameters.targetTable}'\nSET @StagingSchema = '@{pipeline().parameters.stageSchema}'\nSET @WatermarkColumn = '@{pipeline().parameters.watermarkColumnName}'\nSET @FullStagingTableName = CONCAT(@StagingSchema, '.', @StagingTable)\nSET @FullTargetTableName = CONCAT(@TargetSchema, '.', @TargetTable)\nSET @TargetTableColumnList = (\tSELECT \n\t\t\t\t\t\t\t\t\tColumnList = STRING_AGG('[' + col.NAME + ']', ',' )\n\t\t\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t\t\tsys.tables tab\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.schemas sch\n\t\t\t\t\t\t\t\t\t\tON tab.schema_id = sch.schema_id\n\t\t\t\t\t\t\t\t\t\tLEFT JOIN \n\t\t\t\t\t\t\t\t\tsys.columns col\n\t\t\t\t\t\t\t\t\t\tON tab.object_id = col.object_id\n\t\t\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\t\t\tsch.name = @TargetSchema\n\t\t\t\t\t\t\t\t\tAND tab.name = @TargetTable\n\t\t\t\t\t\t\t\t\tAND col.is_identity = 0\n\t\t\t\t\t\t\t)\n ;\n\nINSERT INTO @tmp\n(\n    ColumnKey,\n    TargetTable\n)\nVALUES\n(@WatermarkColumn, @TargetTable);\n WITH PrimaryKeyList AS (\n\t\t\t\t\t\tSELECT \n\t\t\t\t\t\t\tColumnKey = RTRIM(LTRIM(Value)),\n\t\t\t\t\t\t\tRowNumber = ROW_NUMBER () OVER (ORDER BY value ASC)\n\n\t\t\t\t\t\tFROM\n\t\t\t\t\t\t\t@tmp\n\t\t\t\t\t\t\t\tCROSS APPLY \n\t\t\t\t\t\t\tSTRING_SPLIT( ColumnKey, ',')\n\t\t\t\t\t\tWHERE \n\t\t\t\t\t\t\tTargetTable = @TargetTable\n\t\t\t\t\t\t)\n \nSELECT\n    @WhereClause = CONCAT(\t'CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'IN (SELECT CONCAT(', \n\t\t\t\t\t\t\tSTRING_AGG(CASE \n\t\t\t\t\t\t\t\t\t\t\tWHEN E.ColumnKey IS NOT NULL THEN  Beg.ColumnKey\n\t\t\t\t\t\t\t\t\t\t\tELSE CONCAT(Beg.ColumnKey, ') ')\n\t\t\t\t\t\t\t\t\t\tEND, ', '\n\t\t\t\t\t\t\t\t\t\t),\n\t\t\t\t\t\t\t'FROM ', @FullStagingTableName, ')'\n\t\t\t\t\t\t)\nFROM \n    PrimaryKeyList Beg\n        LEFT JOIN\n    PrimaryKeyList E\n        ON Beg.Rownumber = E.Rownumber - 1 \n        ;\nprint @WhereClause;\nSELECT\n    @DeleteStatementSQL = CONCAT('DELETE FROM ', @FullTargetTableName, ' WHERE ', @WhereClause) ;\n \nSELECT \n    @InsertStatementSQL = CONCAT('INSERT INTO ', @FullTargetTableName, ' (', @TargetTableColumnList, ') ', ' SELECT ', @TargetTableColumnList, ' FROM ', @FullStagingTableName)\nEXECUTE sp_executesql @DeleteStatementSQL; \n\nEXECUTE sp_executesql @InsertStatementSQL;",
 								"type": "Expression"
 							}
 						}
@@ -311,10 +311,10 @@
 			"targetTable": {
 				"type": "string"
 			},
-			"waterfallColumn": {
+			"watermarkColumnName": {
 				"type": "string"
 			},
-			"waterfallLookbackDays": {
+			"watermarkLookbackDays": {
 				"type": "int"
 			},
 			"stageSchema": {
@@ -326,6 +326,9 @@
 				"type": "String"
 			},
 			"schemaName": {
+				"type": "String"
+			},
+			"loadingbehaviour": {
 				"type": "String"
 			}
 		},

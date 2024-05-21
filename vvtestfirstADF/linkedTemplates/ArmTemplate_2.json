@@ -2014,7 +2014,7 @@
 						"typeProperties": {
 							"source": {
 								"type": "AzureSqlSource",
-								"sqlReaderQuery": "select  config  from [controlTable].[TestMetadataControlTable] where sourceName = 'source2'",
+								"sqlReaderQuery": "select  config  from [controlTable].[TestMetadataControlTable] where sourceName = 'source1'",
 								"queryTimeout": "02:00:00",
 								"partitionOption": "None"
 							},
@@ -2059,6 +2059,9 @@
 						"type": "String"
 					},
 					"vsl": {
+						"type": "String"
+					},
+					"loadingbehaviour": {
 						"type": "String"
 					}
 				},

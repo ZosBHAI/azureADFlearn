@@ -219,6 +219,10 @@
 											"firstload": {
 												"value": "@pipeline().parameters.firstload",
 												"type": "Expression"
+											},
+											"primaryKey": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).DataLoadingBehaviorSettings.primaryKey)",
+												"type": "Expression"
 											}
 										}
 									}

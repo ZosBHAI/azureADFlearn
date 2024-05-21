@@ -213,7 +213,11 @@
 												"type": "Expression"
 											},
 											"lastSuccessExecDate": {
-												"value": "@string(activity('get_lastsuccessfull_execution_date').output.resultSets[0].rows[0].last_success_date)",
+												"value": "@variables('lastSuccessFullExecDate')",
+												"type": "Expression"
+											},
+											"firstload": {
+												"value": "@pipeline().parameters.firstload",
 												"type": "Expression"
 											}
 										}
@@ -288,7 +292,7 @@
 						{
 							"type": "NonQuery",
 							"text": {
-								"value": "Delete from [controlTable].[TestPipelineRun] where sourceName = '@{pipeline().parameters.source}' and TableName='@{pipeline().parameters.tableName}' and ExecDate = '@{pipeline().parameters.execution_date}';\nInsert into [controlTable].[TestPipelineRun] (sourceName,TableName,Status,ExecDate,LastSuccessfullExecDate) values('@{pipeline().parameters.source}','@{pipeline().parameters.tableName}','Failed','@{pipeline().parameters.execution_date}','@{activity('get_lastsuccessfull_execution_date').output.resultSets[0].rows[0].last_success_date}')\n",
+								"value": "Delete from [controlTable].[TestPipelineRun] where sourceName = '@{pipeline().parameters.source}' and TableName='@{pipeline().parameters.tableName}' and ExecDate = '@{pipeline().parameters.execution_date}';\nInsert into [controlTable].[TestPipelineRun] (sourceName,TableName,Status,ExecDate,LastSuccessfullExecDate) values('@{pipeline().parameters.source}','@{pipeline().parameters.tableName}','Failed','@{pipeline().parameters.execution_date}',@{variables('lastSuccessFullExecDate')})\n",
 								"type": "Expression"
 							}
 						}
@@ -306,6 +310,61 @@
 						"value": "@equals(pipeline().parameters.firstload,'F')",
 						"type": "Expression"
 					},
+					"ifFalseActivities": [
+						{
+							"name": "get_lastsuccessfull_execution_date_first",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "ls_AzureSqlDatabase",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "select '-1' as last_success_date",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "firstload_set_last_success_executiondate",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "get_lastsuccessfull_execution_date_first",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "lastSuccessFullExecDate",
+								"value": {
+									"value": "'@{activity('get_lastsuccessfull_execution_date_first').output.resultSets[0].rows[0].last_success_date}'",
+									"type": "Expression"
+								}
+							}
+						}
+					],
 					"ifTrueActivities": [
 						{
 							"name": "get_lastsuccessfull_execution_date",
@@ -335,6 +394,30 @@
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
 							}
+						},
+						{
+							"name": "normal_load_last_successrun",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "get_lastsuccessfull_execution_date",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "lastSuccessFullExecDate",
+								"value": {
+									"value": "'@{activity('get_lastsuccessfull_execution_date').output.resultSets[0].rows[0].last_success_date}'",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
@@ -355,7 +438,7 @@
 			},
 			"firstload": {
 				"type": "string",
-				"defaultValue": "F"
+				"defaultValue": "T"
 			}
 		},
 		"variables": {

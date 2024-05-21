@@ -93,14 +93,6 @@
 							"value": "@pipeline().parameters.targetTable",
 							"type": "Expression"
 						},
-						"waterfallColumn": {
-							"value": "@pipeline().parameters.waterfallColumn",
-							"type": "Expression"
-						},
-						"waterfallLookbackDays": {
-							"value": "@pipeline().parameters.waterfallLookbackDays",
-							"type": "Expression"
-						},
 						"stageSchema": {
 							"value": "@pipeline().parameters.stageSchema",
 							"type": "Expression"

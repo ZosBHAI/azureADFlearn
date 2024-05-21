@@ -147,6 +147,78 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "update_ingestion_status_success",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "check_loading_statergy",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "Delete from [controlTable].[TestPipelineRun] where sourceName = 'source1' and TableName='@{pipeline().parameters.tableName}' and ExecDate = '@{pipeline().parameters.execution_date}';\nInsert into [controlTable].[TestPipelineRun] (sourceName,TableName,Status,ExecDate,LastSuccessfullExecDate) values('source1','@{pipeline().parameters.tableName}','Success','@{pipeline().parameters.execution_date}','@{pipeline().parameters.execution_date}')\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "update_ingestion_status_fail",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "check_loading_statergy",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "Delete from [controlTable].[TestPipelineRun] where sourceName = 'source1' and TableName='@{pipeline().parameters.tableName}' and ExecDate = '@{pipeline().parameters.execution_date}';\nInsert into [controlTable].[TestPipelineRun] (sourceName,TableName,Status,ExecDate,LastSuccessfullExecDate) values('source1','@{pipeline().parameters.tableName}','Failed','@{pipeline().parameters.execution_date}','@{pipeline().parameters.lastSuccessFullExecDate}')\n",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
 			}
 		],
 		"parameters": {
@@ -161,6 +233,10 @@
 			"tableName": {
 				"type": "string",
 				"defaultValue": "project_table"
+			},
+			"lastSuccessFullExecDate": {
+				"type": "string",
+				"defaultValue": "2023-05-15-09-24-53"
 			}
 		},
 		"variables": {

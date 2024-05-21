@@ -141,7 +141,7 @@
 					"sink": {
 						"type": "AzureSqlSink",
 						"preCopyScript": {
-							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [pipeline().parameters.targetSchema].[pipeline().parameters.targetTable] \nEND",
+							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.targetSchema}].[@{pipeline().parameters.targetTable}] \nEND",
 							"type": "Expression"
 						},
 						"writeBehavior": "insert",
@@ -211,16 +211,6 @@
 						}
 					}
 				]
-			},
-			{
-				"name": "Set variable1",
-				"type": "SetVariable",
-				"dependsOn": [],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": []
 			}
 		],
 		"parameters": {
@@ -262,17 +252,6 @@
 			},
 			"targetTable": {
 				"type": "string"
-			}
-		},
-		"variables": {
-			"execution_date": {
-				"type": "String"
-			},
-			"loadingbehaviour": {
-				"type": "String"
-			},
-			"lastSuccessFullExecDate": {
-				"type": "String"
 			}
 		},
 		"folder": {

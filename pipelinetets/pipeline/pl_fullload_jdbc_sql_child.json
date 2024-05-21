@@ -211,6 +211,16 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": []
 			}
 		],
 		"parameters": {
@@ -259,6 +269,9 @@
 				"type": "String"
 			},
 			"loadingbehaviour": {
+				"type": "String"
+			},
+			"lastSuccessFullExecDate": {
 				"type": "String"
 			}
 		},

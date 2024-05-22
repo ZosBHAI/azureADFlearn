@@ -97,6 +97,10 @@
 							"directory": {
 								"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@pipeline().parameters.fileName",
+								"type": "Expression"
 							}
 						}
 					}
@@ -175,6 +179,10 @@
 							"directory": {
 								"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 								"type": "Expression"
+							},
+							"fileName": {
+								"value": "@pipeline().parameters.fileName",
+								"type": "Expression"
 							}
 						}
 					}
@@ -251,6 +259,9 @@
 				"type": "string"
 			},
 			"targetTable": {
+				"type": "string"
+			},
+			"fileName": {
 				"type": "string"
 			}
 		},

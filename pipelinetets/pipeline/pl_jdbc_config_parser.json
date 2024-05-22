@@ -124,6 +124,10 @@
 											"targetTable": {
 												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.targetTable)",
 												"type": "Expression"
+											},
+											"fileName": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.fileName)",
+												"type": "Expression"
 											}
 										}
 									}
@@ -222,6 +226,10 @@
 											},
 											"primaryKey": {
 												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).DataLoadingBehaviorSettings.primaryKey)",
+												"type": "Expression"
+											},
+											"fileName": {
+												"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.fileName)",
 												"type": "Expression"
 											}
 										}
@@ -442,7 +450,7 @@
 			},
 			"firstload": {
 				"type": "string",
-				"defaultValue": "T"
+				"defaultValue": "F"
 			}
 		},
 		"variables": {

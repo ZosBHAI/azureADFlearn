@@ -5137,7 +5137,6 @@
 								"type": "Expression"
 							},
 							"isSequential": false,
-							"batchCount": 1,
 							"activities": [
 								{
 									"name": "get_object_level_config",

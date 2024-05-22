@@ -24,6 +24,13 @@
 									"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
 									"type": "Expression"
 								}
+							},
+							{
+								"name": "batch_exec_date",
+								"value": {
+									"value": "@pipeline().parameters.executionDate",
+									"type": "Expression"
+								}
 							}
 						],
 						"sqlReaderQuery": {
@@ -149,7 +156,7 @@
 					"sink": {
 						"type": "AzureSqlSink",
 						"preCopyScript": {
-							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.stageSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.stageSchema}].[@{pipeline().parameters.targetTable}] \nEND",
+							"value": "DROP table if exists [@{pipeline().parameters.stageSchema}].[@{pipeline().parameters.targetTable}]",
 							"type": "Expression"
 						},
 						"writeBehavior": "insert",
@@ -412,6 +419,9 @@
 				"type": "String"
 			},
 			"loadingbehaviour": {
+				"type": "String"
+			},
+			"foroutput": {
 				"type": "String"
 			}
 		},

@@ -437,16 +437,13 @@
 		],
 		"parameters": {
 			"execution_date": {
-				"type": "string",
-				"defaultValue": "2024-05-21-00-00-00"
+				"type": "string"
 			},
 			"source": {
-				"type": "string",
-				"defaultValue": "source1"
+				"type": "string"
 			},
 			"tableName": {
-				"type": "string",
-				"defaultValue": "project_table_incr"
+				"type": "string"
 			},
 			"firstload": {
 				"type": "string",
@@ -458,6 +455,9 @@
 				"type": "String"
 			},
 			"lastSuccessFullExecDate": {
+				"type": "String"
+			},
+			"foroutput": {
 				"type": "String"
 			}
 		},

@@ -25,7 +25,10 @@
 							},
 							"firstload": {
 								"type": "String",
-								"value": "F"
+								"value": {
+									"value": "@pipeline().parameters.firstload",
+									"type": "Expression"
+								}
 							},
 							"previousrunstatus": {
 								"type": "String",
@@ -33,7 +36,10 @@
 							},
 							"sourcename": {
 								"type": "String",
-								"value": "source1"
+								"value": {
+									"value": "@pipeline().parameters.sourcename",
+									"type": "Expression"
+								}
 							}
 						},
 						"queryTimeout": "02:00:00",
@@ -78,11 +84,17 @@
 							},
 							"retryfailedflag": {
 								"type": "String",
-								"value": "F"
+								"value": {
+									"value": "@pipeline().parameters.retryfailedflag",
+									"type": "Expression"
+								}
 							},
 							"sourcename": {
 								"type": "String",
-								"value": "source1"
+								"value": {
+									"value": "@pipeline().parameters.sourcename",
+									"type": "Expression"
+								}
 							}
 						},
 						"queryTimeout": "02:00:00",
@@ -94,8 +106,81 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "iterate_through_each_object",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "get_list_of_objects_to_be_ingested",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('get_list_of_objects_to_be_ingested').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 1,
+					"activities": [
+						{
+							"name": "get_object_level_config",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_jdbc_config_parser",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"execution_date": {
+										"value": "@activity('generate_batch_execution_date').output.firstRow.execdate",
+										"type": "Expression"
+									},
+									"source": {
+										"value": "@pipeline().parameters.sourcename",
+										"type": "Expression"
+									},
+									"tableName": {
+										"value": "@item().tableName",
+										"type": "Expression"
+									},
+									"firstload": {
+										"value": "@pipeline().parameters.firstload",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
 			}
 		],
+		"parameters": {
+			"sourcename": {
+				"type": "string"
+			},
+			"firstload": {
+				"type": "string"
+			},
+			"retryfailedflag": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"foroutput": {
+				"type": "String"
+			}
+		},
 		"folder": {
 			"name": "MDDI_V01"
 		},

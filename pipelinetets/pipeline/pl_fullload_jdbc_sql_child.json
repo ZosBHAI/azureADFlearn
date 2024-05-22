@@ -24,6 +24,13 @@
 									"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
 									"type": "Expression"
 								}
+							},
+							{
+								"name": "batch_exec_date",
+								"value": {
+									"value": "@pipeline().parameters.executionDate",
+									"type": "Expression"
+								}
 							}
 						],
 						"queryTimeout": "02:00:00",
@@ -145,7 +152,7 @@
 					"sink": {
 						"type": "AzureSqlSink",
 						"preCopyScript": {
-							"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.targetSchema}].[@{pipeline().parameters.targetTable}] \nEND",
+							"value": "DROP table if exists [@{pipeline().parameters.targetSchema}].[@{pipeline().parameters.targetTable}]",
 							"type": "Expression"
 						},
 						"writeBehavior": "insert",
@@ -263,6 +270,11 @@
 			},
 			"fileName": {
 				"type": "string"
+			}
+		},
+		"variables": {
+			"foroutput": {
+				"type": "String"
 			}
 		},
 		"folder": {

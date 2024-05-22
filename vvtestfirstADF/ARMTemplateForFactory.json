@@ -3459,6 +3459,13 @@
 											"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
 											"type": "Expression"
 										}
+									},
+									{
+										"name": "batch_exec_date",
+										"value": {
+											"value": "@pipeline().parameters.executionDate",
+											"type": "Expression"
+										}
 									}
 								],
 								"queryTimeout": "02:00:00",
@@ -3532,6 +3539,10 @@
 									"directory": {
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 										"type": "Expression"
+									},
+									"fileName": {
+										"value": "@pipeline().parameters.fileName",
+										"type": "Expression"
 									}
 								}
 							}
@@ -3576,7 +3587,7 @@
 							"sink": {
 								"type": "AzureSqlSink",
 								"preCopyScript": {
-									"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.targetSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.targetSchema}].[@{pipeline().parameters.targetTable}] \nEND",
+									"value": "DROP table if exists [@{pipeline().parameters.targetSchema}].[@{pipeline().parameters.targetTable}]",
 									"type": "Expression"
 								},
 								"writeBehavior": "insert",
@@ -3609,6 +3620,10 @@
 									},
 									"directory": {
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
+										"type": "Expression"
+									},
+									"fileName": {
+										"value": "@pipeline().parameters.fileName",
 										"type": "Expression"
 									}
 								}
@@ -3690,6 +3705,14 @@
 					},
 					"targetTable": {
 						"type": "string"
+					},
+					"fileName": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"foroutput": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -3900,6 +3923,13 @@
 											"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
 											"type": "Expression"
 										}
+									},
+									{
+										"name": "batch_exec_date",
+										"value": {
+											"value": "@pipeline().parameters.executionDate",
+											"type": "Expression"
+										}
 									}
 								],
 								"sqlReaderQuery": {
@@ -3977,6 +4007,10 @@
 									"directory": {
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 										"type": "Expression"
+									},
+									"fileName": {
+										"value": "@pipeline().parameters.fileName",
+										"type": "Expression"
 									}
 								}
 							}
@@ -4011,7 +4045,7 @@
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 										"type": "Expression"
 									},
-									"wildcardFileName": "*.parquet",
+									"wildcardFileName": "*",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -4021,7 +4055,7 @@
 							"sink": {
 								"type": "AzureSqlSink",
 								"preCopyScript": {
-									"value": "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '@{pipeline().parameters.stageSchema}' AND TABLE_NAME =  '@{pipeline().parameters.targetTable}' )\nBEGIN \nTRUNCATE TABLE [@{pipeline().parameters.stageSchema}].[@{pipeline().parameters.targetTable}] \nEND",
+									"value": "DROP table if exists [@{pipeline().parameters.stageSchema}].[@{pipeline().parameters.targetTable}]",
 									"type": "Expression"
 								},
 								"writeBehavior": "insert",
@@ -4054,6 +4088,10 @@
 									},
 									"directory": {
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
+										"type": "Expression"
+									},
+									"fileName": {
+										"value": "@pipeline().parameters.fileName",
 										"type": "Expression"
 									}
 								}
@@ -4270,6 +4308,9 @@
 					},
 					"primaryKey": {
 						"type": "string"
+					},
+					"fileName": {
+						"type": "string"
 					}
 				},
 				"variables": {
@@ -4280,6 +4321,9 @@
 						"type": "String"
 					},
 					"loadingbehaviour": {
+						"type": "String"
+					},
+					"foroutput": {
 						"type": "String"
 					}
 				},
@@ -4611,6 +4655,10 @@
 													"targetTable": {
 														"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.targetTable)",
 														"type": "Expression"
+													},
+													"fileName": {
+														"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.fileName)",
+														"type": "Expression"
 													}
 												}
 											}
@@ -4709,6 +4757,10 @@
 													},
 													"primaryKey": {
 														"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).DataLoadingBehaviorSettings.primaryKey)",
+														"type": "Expression"
+													},
+													"fileName": {
+														"value": "@string(json(activity('get_configuration').output.resultSets[0].rows[0].config).SinkObjectSettings.fileName)",
 														"type": "Expression"
 													}
 												}
@@ -4919,20 +4971,17 @@
 				},
 				"parameters": {
 					"execution_date": {
-						"type": "string",
-						"defaultValue": "2024-05-21-00-00-00"
+						"type": "string"
 					},
 					"source": {
-						"type": "string",
-						"defaultValue": "source1"
+						"type": "string"
 					},
 					"tableName": {
-						"type": "string",
-						"defaultValue": "project_table_incr"
+						"type": "string"
 					},
 					"firstload": {
 						"type": "string",
-						"defaultValue": "T"
+						"defaultValue": "F"
 					}
 				},
 				"variables": {
@@ -4940,6 +4989,9 @@
 						"type": "String"
 					},
 					"lastSuccessFullExecDate": {
+						"type": "String"
+					},
+					"foroutput": {
 						"type": "String"
 					}
 				},
@@ -4983,7 +5035,10 @@
 									},
 									"firstload": {
 										"type": "String",
-										"value": "F"
+										"value": {
+											"value": "@pipeline().parameters.firstload",
+											"type": "Expression"
+										}
 									},
 									"previousrunstatus": {
 										"type": "String",
@@ -4991,7 +5046,10 @@
 									},
 									"sourcename": {
 										"type": "String",
-										"value": "source1"
+										"value": {
+											"value": "@pipeline().parameters.sourcename",
+											"type": "Expression"
+										}
 									}
 								},
 								"queryTimeout": "02:00:00",
@@ -5037,11 +5095,17 @@
 									},
 									"retryfailedflag": {
 										"type": "String",
-										"value": "F"
+										"value": {
+											"value": "@pipeline().parameters.retryfailedflag",
+											"type": "Expression"
+										}
 									},
 									"sourcename": {
 										"type": "String",
-										"value": "source1"
+										"value": {
+											"value": "@pipeline().parameters.sourcename",
+											"type": "Expression"
+										}
 									}
 								},
 								"queryTimeout": "02:00:00",
@@ -5054,10 +5118,83 @@
 							},
 							"firstRowOnly": false
 						}
+					},
+					{
+						"name": "iterate_through_each_object",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "get_list_of_objects_to_be_ingested",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('get_list_of_objects_to_be_ingested').output.value",
+								"type": "Expression"
+							},
+							"isSequential": false,
+							"batchCount": 1,
+							"activities": [
+								{
+									"name": "get_object_level_config",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"policy": {
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_jdbc_config_parser",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"execution_date": {
+												"value": "@activity('generate_batch_execution_date').output.firstRow.execdate",
+												"type": "Expression"
+											},
+											"source": {
+												"value": "@pipeline().parameters.sourcename",
+												"type": "Expression"
+											},
+											"tableName": {
+												"value": "@item().tableName",
+												"type": "Expression"
+											},
+											"firstload": {
+												"value": "@pipeline().parameters.firstload",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"sourcename": {
+						"type": "string"
+					},
+					"firstload": {
+						"type": "string"
+					},
+					"retryfailedflag": {
+						"type": "string"
+					}
+				},
+				"variables": {
+					"foroutput": {
+						"type": "String"
+					}
 				},
 				"folder": {
 					"name": "MDDI_V01"
@@ -5066,7 +5203,8 @@
 				"lastPublishTime": "2024-05-15T13:07:47Z"
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_mddi_controlTable_sqldb')]"
+				"[concat(variables('factoryId'), '/datasets/ds_mddi_controlTable_sqldb')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_jdbc_config_parser')]"
 			]
 		},
 		{
@@ -6426,6 +6564,9 @@
 					},
 					"directory": {
 						"type": "string"
+					},
+					"fileName": {
+						"type": "string"
 					}
 				},
 				"folder": {
@@ -6436,6 +6577,10 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().fileName",
+							"type": "Expression"
+						},
 						"folderPath": {
 							"value": "@dataset().directory",
 							"type": "Expression"

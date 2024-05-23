@@ -1,0 +1,32 @@
+{
+	"name": "pl_test_expression",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetExecutionDate",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "executionDate",
+					"value": {
+						"value": "@formatDateTime(utcNow(),'yyyy_MM_dd_hh_mm_ss')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"executionDate": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-04-25T06:42:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

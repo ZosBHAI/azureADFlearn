@@ -1,0 +1,25 @@
+{
+	"name": "abs_destination",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adlsconnection",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "pipeline_01"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\"",
+			"firstRowAsHeader": true
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

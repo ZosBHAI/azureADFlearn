@@ -1,0 +1,86 @@
+{
+	"name": "transformationCeleste",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "readCelesteCSV",
+						"type": "DatasetReference"
+					},
+					"name": "blobCelesete"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "aggreagateDateCeleste",
+						"type": "DatasetReference"
+					},
+					"name": "CeleseteAggregatedData"
+				}
+			],
+			"transformations": [
+				{
+					"name": "removeNonTrandsactionData"
+				},
+				{
+					"name": "aggregateDailySales"
+				},
+				{
+					"name": "addFileNameColumn"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          TransactionId as string,",
+				"          TransactionDate as string,",
+				"          OnlineRetailer as string,",
+				"          SalesMonth as string,",
+				"          SalesRegion as string,",
+				"          SalesCurrency as string,",
+				"          Title as string,",
+				"          Vintage as string,",
+				"          Variety as string,",
+				"          Score as string,",
+				"          ListPrice as string,",
+				"          Quantity as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> blobCelesete",
+				"addFileNameColumn filter(left(Title, 21) != 'Total Sales Quantity:') ~> removeNonTrandsactionData",
+				"removeNonTrandsactionData aggregate(groupBy(OnlineRetailer,",
+				"          SalesMonth,",
+				"          SalesRegion,",
+				"          SalesCurrency,",
+				"          Title,",
+				"          Vintage,",
+				"          Score,",
+				"          ListPrice,",
+				"          FileName),",
+				"     AggregateDailySales = sum(toInteger(Quantity))) ~> aggregateDailySales",
+				"blobCelesete derive(FileName = concat(OnlineRetailer, '_', substring(SalesMonth, 1, 4), '_', substring(SalesMonth, 6, 2))) ~> addFileNameColumn",
+				"aggregateDailySales sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          OnlineRetailer as string,",
+				"          SalesMonth as string,",
+				"          Title as string,",
+				"          Vintage as string,",
+				"          Variety as string,",
+				"          Score as string,",
+				"          ListPrice as string,",
+				"          Quantity as string",
+				"     ),",
+				"     rowUrlColumn:'FileName',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> CeleseteAggregatedData"
+			]
+		}
+	}
+}

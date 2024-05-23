@@ -1,0 +1,19 @@
+{
+	"name": "MetadataDrivenCopyTask_vp9_ControlDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_AzureSqlDatabase",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "MetadataDrivenCopyTask_vp9_20240523"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "fileBasedingestion",
+			"table": "MainControlTable_vp9"
+		}
+	}
+}

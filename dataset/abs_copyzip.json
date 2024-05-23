@@ -1,0 +1,25 @@
+{
+	"name": "abs_copyzip",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adlsconnection",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "pipeline_01"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "sampledata.zip",
+				"fileSystem": "landing"
+			},
+			"compression": {
+				"type": "ZipDeflate"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,32 @@
+{
+	"name": "pl_readGlobalJsonParam",
+	"properties": {
+		"activities": [
+			{
+				"name": "schema",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "schemaName",
+					"value": {
+						"value": "@string(json(string(pipeline().globalParameters.TESTGlobalParam)).schema)",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"schemaName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-05-08T09:24:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

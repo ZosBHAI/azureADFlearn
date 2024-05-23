@@ -1,0 +1,62 @@
+{
+	"name": "df_mdct_partitioned_nonparam",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "ls_AzureSqlDatabase",
+						"type": "LinkedServiceReference"
+					},
+					"name": "readJDBC"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "ls_adlsconnection",
+						"type": "LinkedServiceReference"
+					},
+					"name": "writer"
+				}
+			],
+			"transformations": [
+				{
+					"name": "addMetaloadDate"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Project as string,",
+				"          Creationtime as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     inferDriftedColumnTypes: true,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: 'dbo',",
+				"     tableName: 'project_table',",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     partitionBy('roundRobin', 2)) ~> readJDBC",
+				"readJDBC derive(meta_load_dttm = toString(currentTimestamp(),'yyyy-MM-dd-hh-mm-ss')) ~> addMetaloadDate",
+				"addMetaloadDate sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'landing',",
+				"     folderPath: 'mdctPartitioned/dbo/dbo_project',",
+				"     compressionCodec: 'snappy',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('key',",
+				"          0,",
+				"          meta_load_dttm",
+				"     )) ~> writer"
+			]
+		}
+	}
+}

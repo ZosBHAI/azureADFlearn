@@ -1,0 +1,18 @@
+{
+	"name": "SourceDataset_6j1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adlsconnection",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "sampledata",
+				"fileSystem": "raw"
+			}
+		}
+	}
+}

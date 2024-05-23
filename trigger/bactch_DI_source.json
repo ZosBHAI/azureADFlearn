@@ -3,19 +3,7 @@
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Stopped",
-		"pipelines": [
-			{
-				"pipelineReference": {
-					"referenceName": "pl_master_orch_source1_jdbc",
-					"type": "PipelineReference"
-				},
-				"parameters": {
-					"sourcename": "source1",
-					"firstload": "T",
-					"retryfailedflag": "F"
-				}
-			}
-		],
+		"pipelines": [],
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {

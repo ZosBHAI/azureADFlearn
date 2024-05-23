@@ -1,0 +1,30 @@
+{
+	"name": "bactch_DI_source",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_orch_source1_jdbc",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"sourcename": "source1",
+					"firstload": "T",
+					"retryfailedflag": "F"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-05-23T12:07:00",
+				"endTime": "2024-05-24T12:07:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}

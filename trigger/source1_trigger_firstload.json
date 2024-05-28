@@ -21,8 +21,8 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-28T16:46:00",
-				"endTime": "2024-05-28T17:30:00",
+				"startTime": "2024-05-28T17:00:00",
+				"endTime": "2024-05-29T17:30:00",
 				"timeZone": "India Standard Time"
 			}
 		}

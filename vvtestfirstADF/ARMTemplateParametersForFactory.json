@@ -35,15 +35,6 @@
 		"ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl": {
 			"value": "https://kv-gen2-accesskey-adf.vault.azure.net/"
 		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
-			"value": "source1"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
-			"value": "T"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
-			"value": "F"
-		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 			"value": "source1"
 		},
@@ -51,6 +42,15 @@
 			"value": "F"
 		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"value": "F"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"value": "source1"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"value": "T"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 			"value": "F"
 		}
 	}

@@ -1,0 +1,30 @@
+{
+	"name": "source1_trigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_orch_jdbc",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"sourcename": "source1",
+					"firstload": "T",
+					"retryfailedflag": "F"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 10,
+				"startTime": "2024-05-28T10:24:00",
+				"endTime": "2024-05-28T10:40:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}

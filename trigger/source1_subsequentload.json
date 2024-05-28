@@ -1,0 +1,30 @@
+{
+	"name": "source1_subsequentload",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "pl_master_orch_jdbc",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"sourcename": "source1",
+					"firstload": "F",
+					"retryfailedflag": "F"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-05-28T10:39:00",
+				"endTime": "2024-05-28T10:54:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}

@@ -74,13 +74,21 @@
 		},
 		"source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 			"type": "string",
-			"defaultValue": "source1"
+			"defaultValue": "source2"
 		},
 		"source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
 			"type": "string",
 			"defaultValue": "T"
 		},
 		"source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
+		"source2_subsequent_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source2"
+		},
+		"source2_subsequent_properties_pl_master_orch_jdbc_parameters_firstload": {
 			"type": "string",
 			"defaultValue": "F"
 		},
@@ -245,6 +253,12 @@
 					},
 					"source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 						"value": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+					},
+					"source2_subsequent_properties_pl_master_orch_jdbc_parameters_sourcename": {
+						"value": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_sourcename')]"
+					},
+					"source2_subsequent_properties_pl_master_orch_jdbc_parameters_firstload": {
+						"value": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_firstload')]"
 					}
 				}
 			},

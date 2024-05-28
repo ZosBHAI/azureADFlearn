@@ -48,6 +48,30 @@
 			"type": "string",
 			"defaultValue": "https://kv-gen2-accesskey-adf.vault.azure.net/"
 		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source1"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"type": "string",
+			"defaultValue": "T"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
+		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source1"
+		},
+		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"type": "string",
+			"defaultValue": "F"
+		},
+		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -167,6 +191,44 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_2')]"
+			]
+		},
+		{
+			"name": "vvtestfirstADF_ArmTemplate_4",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_4.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+					},
+					"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+						"value": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
+					},
+					"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_firstload": {
+						"value": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_firstload')]"
+					},
+					"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+						"value": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_3')]"
 			]
 		}
 	]

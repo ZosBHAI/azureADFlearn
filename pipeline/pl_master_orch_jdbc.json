@@ -169,10 +169,12 @@
 				"type": "string"
 			},
 			"firstload": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "F"
 			},
 			"retryfailedflag": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "F"
 			}
 		},
 		"folder": {

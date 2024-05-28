@@ -72,6 +72,18 @@
 			"type": "string",
 			"defaultValue": "F"
 		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source1"
+		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"type": "string",
+			"defaultValue": "T"
+		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -224,6 +236,15 @@
 					},
 					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+					},
+					"source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+						"value": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
+					},
+					"source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+						"value": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]"
+					},
+					"source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+						"value": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
 					}
 				}
 			},

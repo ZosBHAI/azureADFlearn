@@ -53,6 +53,15 @@
 		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 			"value": "F"
 		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"value": "source1"
+		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"value": "T"
+		},
+		"source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"value": "F"
+		},
 		"containerUri": {
 			"value": ""
 		},

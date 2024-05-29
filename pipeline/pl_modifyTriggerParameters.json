@@ -106,7 +106,35 @@
 					"method": "PUT",
 					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
 					"body": {
-						"value": "{\"properties\" : json(activity('Script1').output.pipelineReturnValue)}",
+						"value": "{\"properties\" : {\n    \"annotations\": [\n      \n    ],\n    \"pipelines\": [\n      {\n        \"pipelineReference\": {\n          \"referenceName\": \"pl_master_orch_jdbc\",\n          \"type\": \"PipelineReference\"\n        },\n        \"parameters\": {\n          \"sourcename\": \"source2\",\n          \"firstload\": \"F\",\n          \"retryfailedflag\": \"F\"\n        }\n      }\n    ],\n    \"type\": \"ScheduleTrigger\",\n    \"typeProperties\": {\n      \"recurrence\": {\n        \"frequency\": \"Day\",\n        \"interval\": 1,\n        \"startTime\": \"2024-05-28T19:40:00Z\",\n        \"timeZone\": \"India Standard Time\"\n      }\n    },\n    \"runtimeState\": \"Started\"\n  }\n",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com/"
+					}
+				}
+			},
+			{
+				"name": "Set variable2",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Script1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "properties",
+					"value": {
+						"value": "concat('{\"properties\" :', '@{json(activity('Script1').output.resultSets[0].rows[0].modified_prop)}'}",
 						"type": "Expression"
 					}
 				}
@@ -114,6 +142,9 @@
 		],
 		"variables": {
 			"webactivityop": {
+				"type": "String"
+			},
+			"properties": {
 				"type": "String"
 			}
 		},

@@ -16,14 +16,107 @@
 				"userProperties": [],
 				"typeProperties": {
 					"method": "GET",
-					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/pipelines/pl_test_expression/createRun?api-version=2018-06-01\t",
+					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
 					"authentication": {
 						"type": "MSI",
-						"resource": "https://management.azure.com"
+						"resource": "https://management.azure.com/"
+					}
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "getTriggerInformation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "webactivityop",
+					"value": {
+						"value": "@concat('{\"name\": \"',string(activity('getTriggerInformation').output.name),'\",\n\"properties\":','\"',string(activity('getTriggerInformation').output.properties),'\"')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Script1",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "getTriggerInformation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_AzureSqlDatabase",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "\nDECLARE @TriggerConfig NVARCHAR(max)  = N'@{activity('getTriggerInformation').output}'\nSET @TriggerConfig = JSON_MODIFY(JSON_MODIFY(@TriggerConfig, '$.properties.pipelines[0].parameters.firstload', 'F'),'$.properties.pipelines[0].parameters.retryfailedflag','F');\n\nDECLARE @Properties NVARCHAR(max);\nSELECT  @Properties =  properties FROM OPENJSON(@TriggerConfig)\n    WITH([properties] [nvarchar](max)  '$.properties' AS JSON);\nselect  @Properties as modified_prop;",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "updateTrigger",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Script1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
+					"body": {
+						"value": "{\"properties\" : json(activity('Script1').output.pipelineReturnValue)}",
+						"type": "Expression"
 					}
 				}
 			}
 		],
+		"variables": {
+			"webactivityop": {
+				"type": "String"
+			}
+		},
 		"annotations": []
 	}
 }

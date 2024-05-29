@@ -48,18 +48,6 @@
 			"type": "string",
 			"defaultValue": "https://kv-gen2-accesskey-adf.vault.azure.net/"
 		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
-			"type": "string",
-			"defaultValue": "source1"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
-			"type": "string",
-			"defaultValue": "T"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
-			"type": "string",
-			"defaultValue": "F"
-		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 			"type": "string",
 			"defaultValue": "source1"
@@ -69,6 +57,18 @@
 			"defaultValue": "F"
 		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source1"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"type": "string",
+			"defaultValue": "T"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 			"type": "string",
 			"defaultValue": "F"
 		},
@@ -3523,6 +3523,9 @@
 					},
 					"loadingbehaviour": {
 						"type": "String"
+					},
+					"properties": {
+						"type": "String"
 					}
 				},
 				"annotations": [],
@@ -5469,6 +5472,9 @@
 					},
 					"foroutput": {
 						"type": "String"
+					},
+					"properties": {
+						"type": "String"
 					}
 				},
 				"folder": {
@@ -5669,6 +5675,11 @@
 						"defaultValue": "F"
 					}
 				},
+				"variables": {
+					"properties": {
+						"type": "String"
+					}
+				},
 				"folder": {
 					"name": "MDDI_V01"
 				},
@@ -5678,6 +5689,169 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_mddi_controlTable_sqldb')]",
 				"[concat(variables('factoryId'), '/pipelines/pl_jdbc_config_parser')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_modifyTriggerParameters')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "getTriggerInformation",
+						"type": "WebActivity",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "GET",
+							"headers": {},
+							"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "Set variable1",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "getTriggerInformation",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "webactivityop",
+							"value": {
+								"value": "@concat('{\"name\": \"',string(activity('getTriggerInformation').output.name),'\",\n\"properties\":','\"',string(activity('getTriggerInformation').output.properties),'\"')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Script1",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "getTriggerInformation",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_AzureSqlDatabase",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": {
+										"value": "\nDECLARE @TriggerConfig NVARCHAR(max)  = N'@{activity('getTriggerInformation').output}'\nSET @TriggerConfig = JSON_MODIFY(JSON_MODIFY(@TriggerConfig, '$.properties.pipelines[0].parameters.firstload', 'F'),'$.properties.pipelines[0].parameters.retryfailedflag','F');\n\nDECLARE @Properties NVARCHAR(max);\nSELECT  @Properties =  properties FROM OPENJSON(@TriggerConfig)\n    WITH([properties] [nvarchar](max)  '$.properties' AS JSON);\nselect  @Properties as modified_prop;",
+										"type": "Expression"
+									}
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "updateTrigger",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Script1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "PUT",
+							"headers": {},
+							"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
+							"body": {
+								"value": "{\n  \"properties\": {\n    \"annotations\": [\n      \n    ],\n    \"pipelines\": [\n      {\n        \"pipelineReference\": {\n          \"referenceName\": \"pl_master_orch_jdbc\",\n          \"type\": \"PipelineReference\"\n        },\n        \"parameters\": {\n          \"sourcename\": \"source2\",\n          \"firstload\": \"F\",\n          \"retryfailedflag\": \"F\"\n        }\n      }\n    ],\n    \"type\": \"ScheduleTrigger\",\n    \"typeProperties\": {\n      \"recurrence\": {\n        \"frequency\": \"Day\",\n        \"interval\": 1,\n        \"startTime\": \"2024-05-28T19:40:00Z\",\n        \"timeZone\": \"India Standard Time\"\n      }\n    },\n    \"runtimeState\": \"Stopped\"\n  }\n}",
+								"type": "Expression"
+							},
+							"authentication": {
+								"type": "MSI",
+								"resource": "https://management.azure.com/"
+							}
+						}
+					},
+					{
+						"name": "Set variable2",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Script1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "properties",
+							"value": {
+								"value": "@string(json(activity('Script1').output.resultSets[0].rows[0].modified_prop))",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"webactivityop": {
+						"type": "String"
+					},
+					"properties": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_AzureSqlDatabase')]"
 			]
 		},
 		{
@@ -5796,6 +5970,9 @@
 				"variables": {
 					"schemaName": {
 						"type": "String"
+					},
+					"properties": {
+						"type": "String"
 					}
 				},
 				"annotations": [],
@@ -5842,6 +6019,11 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"properties": {
+						"type": "String"
+					}
 				},
 				"annotations": [],
 				"lastPublishTime": "2024-04-18T10:44:58Z"
@@ -7664,6 +7846,141 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/source1_subsequentload')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_master_orch_jdbc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourcename": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
+							"firstload": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_firstload')]",
+							"retryfailedflag": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-05-28T19:45:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/source1_trigger_firstload')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_master_orch_jdbc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourcename": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
+							"firstload": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]",
+							"retryfailedflag": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-05-28T19:40:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/source2_firstload')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_master_orch_jdbc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourcename": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
+							"firstload": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]",
+							"retryfailedflag": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-05-28T19:40:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/source2_subsequent')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "pl_master_orch_jdbc",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"sourcename": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_sourcename')]",
+							"firstload": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_firstload')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2024-05-28T19:45:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_Copy_RawtoCleansed_Sales_Celeste_ex5')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -8221,142 +8538,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/readCelesteCSV')]",
 				"[concat(variables('factoryId'), '/datasets/aggreagateDateCeleste')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/source1_trigger_firstload')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_master_orch_jdbc",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"sourcename": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
-							"firstload": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]",
-							"retryfailedflag": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2024-05-28T19:40:00",
-						"timeZone": "India Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/source1_subsequentload')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_master_orch_jdbc",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"sourcename": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
-							"firstload": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_firstload')]",
-							"retryfailedflag": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2024-05-28T19:45:00",
-						"timeZone": "India Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/source2_firstload')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_master_orch_jdbc",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"sourcename": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]",
-							"firstload": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]",
-							"retryfailedflag": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2024-05-28T19:40:00",
-						"timeZone": "India Standard Time",
-						"schedule": {}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/source2_subsequent')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "pl_master_orch_jdbc",
-							"type": "PipelineReference"
-						},
-						"parameters": {
-							"sourcename": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_sourcename')]",
-							"firstload": "[parameters('source2_subsequent_properties_pl_master_orch_jdbc_parameters_firstload')]"
-						}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Minute",
-						"interval": 15,
-						"startTime": "2024-05-28T19:45:00",
-						"timeZone": "India Standard Time"
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_master_orch_jdbc')]"
 			]
 		}
 	]

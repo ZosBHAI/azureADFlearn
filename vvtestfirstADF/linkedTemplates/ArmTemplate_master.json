@@ -48,18 +48,6 @@
 			"type": "string",
 			"defaultValue": "https://kv-gen2-accesskey-adf.vault.azure.net/"
 		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
-			"type": "string",
-			"defaultValue": "source1"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
-			"type": "string",
-			"defaultValue": "T"
-		},
-		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
-			"type": "string",
-			"defaultValue": "F"
-		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 			"type": "string",
 			"defaultValue": "source1"
@@ -69,6 +57,18 @@
 			"defaultValue": "F"
 		},
 		"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+			"type": "string",
+			"defaultValue": "F"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+			"type": "string",
+			"defaultValue": "source1"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+			"type": "string",
+			"defaultValue": "T"
+		},
+		"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 			"type": "string",
 			"defaultValue": "F"
 		},
@@ -227,15 +227,6 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
-						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
-					},
-					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
-						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]"
-					},
-					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
-						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
-					},
 					"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 						"value": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
 					},
@@ -244,6 +235,15 @@
 					},
 					"source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
 						"value": "[parameters('source1_subsequentload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_firstload')]"
+					},
+					"source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag": {
+						"value": "[parameters('source1_trigger_firstload_properties_pl_master_orch_jdbc_parameters_retryfailedflag')]"
 					},
 					"source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename": {
 						"value": "[parameters('source2_firstload_properties_pl_master_orch_jdbc_parameters_sourcename')]"

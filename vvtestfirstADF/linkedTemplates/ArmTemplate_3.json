@@ -13,6 +13,79 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_trigger_dflow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_mdct_partitioned_parameterised",
+								"type": "DataFlowReference",
+								"parameters": {
+									"Destination1": {
+										"value": "'@{pipeline().parameters.dest}'",
+										"type": "Expression"
+									},
+									"cw_schema": {
+										"value": "'@{pipeline().parameters.sch}'",
+										"type": "Expression"
+									},
+									"cw_table": {
+										"value": "'@{pipeline().parameters.tbl}'",
+										"type": "Expression"
+									},
+									"fileStore": "'landing'"
+								},
+								"datasetParameters": {
+									"readJDBC": {},
+									"writer": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"dest": {
+						"type": "string"
+					},
+					"sch": {
+						"type": "string"
+					},
+					"tbl": {
+						"type": "string"
+					},
+					"fileStore": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-05-06T10:02:44Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_mddi_parquet_parameterized')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -1858,6 +1931,11 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
+				"variables": {
+					"properties": {
+						"type": "String"
+					}
+				},
 				"annotations": [],
 				"lastPublishTime": "2024-04-18T10:44:58Z"
 			},
@@ -2608,175 +2686,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/MetadataDrivenCopyTask_vp9_MiddleLevel')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_fulload_jdbc_sql_master')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Generate execution date",
-						"type": "SetVariable",
-						"dependsOn": [],
-						"policy": {
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"variableName": "execution_date",
-							"value": {
-								"value": "@formatDateTime(utcNow(),'yyyy-MM-dd-hh-mm-ss')",
-								"type": "Expression"
-							}
-						}
-					},
-					{
-						"name": "Trigger Fulload JDBC",
-						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Generate execution date",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "pl_fullload_jdbc_sql_child",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"url": {
-									"value": "@pipeline().parameters.url",
-									"type": "Expression"
-								},
-								"username": {
-									"value": "@pipeline().parameters.username",
-									"type": "Expression"
-								},
-								"password": {
-									"value": "@pipeline().parameters.password",
-									"type": "Expression"
-								},
-								"schema": {
-									"value": "@pipeline().parameters.schema",
-									"type": "Expression"
-								},
-								"tablename": {
-									"value": "@pipeline().parameters.tablename",
-									"type": "Expression"
-								},
-								"storageAccount": {
-									"value": "@pipeline().parameters.storageAccount",
-									"type": "Expression"
-								},
-								"fileSystem": {
-									"value": "@pipeline().parameters.fileSystem",
-									"type": "Expression"
-								},
-								"directory": {
-									"value": "@pipeline().parameters.directory",
-									"type": "Expression"
-								},
-								"blobPartitionColumn": {
-									"value": "@pipeline().parameters.partitionColname",
-									"type": "Expression"
-								},
-								"executionDate": {
-									"value": "@variables('execution_date')",
-									"type": "Expression"
-								},
-								"database": {
-									"value": "@pipeline().parameters.database",
-									"type": "Expression"
-								},
-								"targetSchema": {
-									"value": "@pipeline().parameters.targetSchema",
-									"type": "Expression"
-								},
-								"targetTable": {
-									"value": "@pipeline().parameters.targetTable",
-									"type": "Expression"
-								}
-							}
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"storageAccount": {
-						"type": "string",
-						"defaultValue": "vvtestadfdevsg"
-					},
-					"url": {
-						"type": "string",
-						"defaultValue": "vvtestadf-sname-sn.database.windows.net"
-					},
-					"username": {
-						"type": "string",
-						"defaultValue": "adfadmin"
-					},
-					"password": {
-						"type": "string",
-						"defaultValue": "Password123"
-					},
-					"database": {
-						"type": "string",
-						"defaultValue": "vvtestadf_dbname_sqldb"
-					},
-					"schema": {
-						"type": "string",
-						"defaultValue": "dbo"
-					},
-					"tablename": {
-						"type": "string",
-						"defaultValue": "project_table"
-					},
-					"targetSchema": {
-						"type": "string",
-						"defaultValue": "dest_dbo"
-					},
-					"targetTable": {
-						"type": "string",
-						"defaultValue": "dest_project_table"
-					},
-					"fileSystem": {
-						"type": "string",
-						"defaultValue": "raw"
-					},
-					"directory": {
-						"type": "string",
-						"defaultValue": "jdbc"
-					},
-					"partitionColname": {
-						"type": "string",
-						"defaultValue": "meta_load"
-					}
-				},
-				"variables": {
-					"execution_date": {
-						"type": "String"
-					}
-				},
-				"folder": {
-					"name": "MDDI_V01"
-				},
-				"annotations": [],
-				"lastPublishTime": "2024-05-07T06:35:15Z"
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_fullload_jdbc_sql_child')]"
 			]
 		}
 	]

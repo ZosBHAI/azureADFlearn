@@ -1,0 +1,29 @@
+{
+	"name": "pl_modifyTriggerParameters",
+	"properties": {
+		"activities": [
+			{
+				"name": "getTriggerInformation",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "GET",
+					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/pipelines/pl_test_expression/createRun?api-version=2018-06-01\t",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com"
+					}
+				}
+			}
+		],
+		"annotations": []
+	}
+}

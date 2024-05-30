@@ -144,7 +144,7 @@
 				"typeProperties": {
 					"variableName": "properties",
 					"value": {
-						"value": "@string(json(activity('Script1').output.resultSets[0].rows[0].modified_prop))",
+						"value": "@string(json(activity('parse_and_modify_trigger_properties').output.resultSets[0].rows[0].modified_prop))",
 						"type": "Expression"
 					}
 				}
@@ -224,7 +224,7 @@
 					},
 					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
 					"body": {
-						"value": "{\n  \"properties\": @{json(activity('Script1').output.resultSets[0].rows[0].modified_prop)}\n    \n}",
+						"value": "{\n  \"properties\": @{json(activity('parse_and_modify_trigger_properties').output.resultSets[0].rows[0].modified_prop)}\n    \n}",
 						"type": "Expression"
 					},
 					"authentication": {

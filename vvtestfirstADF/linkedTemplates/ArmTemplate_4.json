@@ -875,9 +875,6 @@
 					},
 					"foroutput": {
 						"type": "String"
-					},
-					"properties": {
-						"type": "String"
 					}
 				},
 				"folder": {
@@ -1072,11 +1069,6 @@
 					"retryfailedflag": {
 						"type": "string",
 						"defaultValue": "F"
-					}
-				},
-				"variables": {
-					"properties": {
-						"type": "String"
 					}
 				},
 				"folder": {

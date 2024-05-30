@@ -1931,11 +1931,6 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"variables": {
-					"properties": {
-						"type": "String"
-					}
-				},
 				"annotations": [],
 				"lastPublishTime": "2024-04-18T10:44:58Z"
 			},

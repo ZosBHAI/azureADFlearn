@@ -5,7 +5,14 @@
 			{
 				"name": "getTriggerInformation",
 				"type": "WebActivity",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "stopTrigger",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -24,7 +31,7 @@
 				}
 			},
 			{
-				"name": "Set variable1",
+				"name": "test_parse_logic_02",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
@@ -48,7 +55,7 @@
 				}
 			},
 			{
-				"name": "Script1",
+				"name": "parse_and_modify_trigger_properties",
 				"type": "Script",
 				"dependsOn": [
 					{
@@ -88,7 +95,7 @@
 				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "Script1",
+						"activity": "parse_and_modify_trigger_properties",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -119,11 +126,11 @@
 				}
 			},
 			{
-				"name": "Set variable2",
+				"name": "test_parse_logic_01",
 				"type": "SetVariable",
 				"dependsOn": [
 					{
-						"activity": "Script1",
+						"activity": "parse_and_modify_trigger_properties",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -167,6 +174,62 @@
 					"authentication": {
 						"type": "MSI",
 						"resource": "https://management.azure.com"
+					}
+				}
+			},
+			{
+				"name": "stopTrigger",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload/stop?api-version=2018-06-01",
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com"
+					}
+				}
+			},
+			{
+				"name": "updateTrigger_parameter",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "parse_and_modify_trigger_properties",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "PUT",
+					"headers": {
+						"If-Match": "*"
+					},
+					"url": "https://management.azure.com/subscriptions/3b59f2cb-2455-4729-b77a-604825cb72ab/resourceGroups/vvtes_adf/providers/Microsoft.DataFactory/factories/vvtestfirstADF/triggers/source2_firstload?api-version=2018-06-01",
+					"body": {
+						"value": "{\n  \"properties\": @{json(activity('Script1').output.resultSets[0].rows[0].modified_prop)}\n    \n}",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "MSI",
+						"resource": "https://management.azure.com/"
 					}
 				}
 			}

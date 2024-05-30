@@ -2,7 +2,7 @@
 	"name": "source2_firstload",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
@@ -21,7 +21,7 @@
 			"recurrence": {
 				"frequency": "Day",
 				"interval": 1,
-				"startTime": "2024-05-28T19:40:00",
+				"startTime": "2024-05-30T19:15:00",
 				"timeZone": "India Standard Time"
 			}
 		}

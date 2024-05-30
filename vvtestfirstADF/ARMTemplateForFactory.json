@@ -5351,7 +5351,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "select -1 as last_success_date",
+													"value": "select '-1' as last_success_date",
 													"type": "Expression"
 												}
 											}
@@ -5378,7 +5378,7 @@
 									"typeProperties": {
 										"variableName": "lastSuccessFullExecDate",
 										"value": {
-											"value": "'@{activity('get_lastsuccessfull_execution_date_first').output.resultSets[0].rows[0].last_success_date}'",
+											"value": "@{activity('get_lastsuccessfull_execution_date_first').output.resultSets[0].rows[0].last_success_date}",
 											"type": "Expression"
 										}
 									}
@@ -5433,7 +5433,7 @@
 									"typeProperties": {
 										"variableName": "lastSuccessFullExecDate",
 										"value": {
-											"value": "'@{activity('get_lastsuccessfull_execution_date').output.resultSets[0].rows[0].last_success_date}'",
+											"value": "@{activity('get_lastsuccessfull_execution_date').output.resultSets[0].rows[0].last_success_date}",
 											"type": "Expression"
 										}
 									}

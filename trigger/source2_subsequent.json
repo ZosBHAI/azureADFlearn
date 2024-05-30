@@ -2,7 +2,7 @@
 	"name": "source2_subsequent",
 	"properties": {
 		"annotations": [],
-		"runtimeState": "Stopped",
+		"runtimeState": "Started",
 		"pipelines": [
 			{
 				"pipelineReference": {
@@ -18,9 +18,9 @@
 		"type": "ScheduleTrigger",
 		"typeProperties": {
 			"recurrence": {
-				"frequency": "Minute",
-				"interval": 15,
-				"startTime": "2024-05-28T19:45:00",
+				"frequency": "Day",
+				"interval": 1,
+				"startTime": "2024-05-30T19:25:00",
 				"timeZone": "India Standard Time"
 			}
 		}

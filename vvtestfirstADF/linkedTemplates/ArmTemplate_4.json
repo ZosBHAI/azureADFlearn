@@ -812,7 +812,7 @@
 											{
 												"type": "Query",
 												"text": {
-													"value": "select coalesce(max(LastSuccessfullExecDate),-1) as last_success_date from [controlTable].[TestPipelineRun] where sourceName = '@{pipeline().parameters.source}' and   TableName = '@{pipeline().parameters.tableName}'",
+													"value": "select coalesce(max(LastSuccessfullExecDate),'-1') as last_success_date from [controlTable].[TestPipelineRun] where sourceName = '@{pipeline().parameters.source}' and   TableName = '@{pipeline().parameters.tableName}'",
 													"type": "Expression"
 												}
 											}

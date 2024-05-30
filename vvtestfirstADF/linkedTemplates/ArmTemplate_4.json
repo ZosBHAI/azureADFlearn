@@ -1087,7 +1087,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -1106,8 +1106,9 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2024-05-28T19:45:00",
-						"timeZone": "India Standard Time"
+						"startTime": "2024-05-30T19:25:00",
+						"timeZone": "India Standard Time",
+						"schedule": {}
 					}
 				}
 			},
@@ -1121,7 +1122,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -1140,8 +1141,9 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2024-05-28T19:40:00",
-						"timeZone": "India Standard Time"
+						"startTime": "2024-05-30T19:15:00",
+						"timeZone": "India Standard Time",
+						"schedule": {}
 					}
 				}
 			},
@@ -1155,7 +1157,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -1174,8 +1176,9 @@
 					"recurrence": {
 						"frequency": "Day",
 						"interval": 1,
-						"startTime": "2024-05-28T19:40:00",
-						"timeZone": "India Standard Time"
+						"startTime": "2024-05-30T19:15:00",
+						"timeZone": "India Standard Time",
+						"schedule": {}
 					}
 				}
 			},
@@ -1189,7 +1192,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -1205,10 +1208,11 @@
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Minute",
-						"interval": 15,
-						"startTime": "2024-05-28T19:45:00",
-						"timeZone": "India Standard Time"
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2024-05-30T19:25:00",
+						"timeZone": "India Standard Time",
+						"schedule": {}
 					}
 				}
 			},

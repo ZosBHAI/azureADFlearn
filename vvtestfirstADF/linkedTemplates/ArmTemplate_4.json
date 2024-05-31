@@ -1107,8 +1107,7 @@
 						"frequency": "Day",
 						"interval": 1,
 						"startTime": "2024-05-30T19:25:00",
-						"timeZone": "India Standard Time",
-						"schedule": {}
+						"timeZone": "India Standard Time"
 					}
 				}
 			},
@@ -1142,8 +1141,7 @@
 						"frequency": "Day",
 						"interval": 1,
 						"startTime": "2024-05-30T19:15:00",
-						"timeZone": "India Standard Time",
-						"schedule": {}
+						"timeZone": "India Standard Time"
 					}
 				}
 			},
@@ -1177,8 +1175,7 @@
 						"frequency": "Day",
 						"interval": 1,
 						"startTime": "2024-05-30T19:15:00",
-						"timeZone": "India Standard Time",
-						"schedule": {}
+						"timeZone": "India Standard Time"
 					}
 				}
 			},
@@ -1211,8 +1208,7 @@
 						"frequency": "Day",
 						"interval": 1,
 						"startTime": "2024-05-30T19:25:00",
-						"timeZone": "India Standard Time",
-						"schedule": {}
+						"timeZone": "India Standard Time"
 					}
 				}
 			},

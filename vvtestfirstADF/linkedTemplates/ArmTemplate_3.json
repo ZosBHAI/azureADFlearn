@@ -1265,7 +1265,7 @@
 										"type": "Expression"
 									},
 									"fileName": {
-										"value": "@pipeline().parameters.fileName",
+										"value": "@concat(pipeline().parameters.fileName,'.parquet')",
 										"type": "Expression"
 									}
 								}
@@ -1563,7 +1563,7 @@
 										"type": "Expression"
 									},
 									"fileName": {
-										"value": "@pipeline().parameters.fileName",
+										"value": "@concat(pipeline().parameters.fileName,'.parquet')",
 										"type": "Expression"
 									}
 								}
@@ -1599,7 +1599,7 @@
 										"value": "@concat(pipeline().parameters.directory,'/',pipeline().parameters.schema,'/',pipeline().parameters.tablename,'/',pipeline().parameters.blobPartitionColumn,'=',pipeline().parameters.executionDate)",
 										"type": "Expression"
 									},
-									"wildcardFileName": "*",
+									"wildcardFileName": "*.parquet",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {

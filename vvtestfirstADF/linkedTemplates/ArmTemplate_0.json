@@ -429,6 +429,7 @@
 					},
 					{
 						"name": "startTrigger",
+						"description": "{}",
 						"type": "WebActivity",
 						"dependsOn": [
 							{
@@ -459,6 +460,7 @@
 					},
 					{
 						"name": "stopTrigger",
+						"description": "{}",
 						"type": "WebActivity",
 						"dependsOn": [],
 						"policy": {

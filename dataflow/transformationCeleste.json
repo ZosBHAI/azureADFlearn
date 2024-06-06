@@ -14,10 +14,6 @@
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "aggreagateDateCeleste",
-						"type": "DatasetReference"
-					},
 					"name": "CeleseteAggregatedData"
 				}
 			],
@@ -64,22 +60,11 @@
 				"blobCelesete derive(FileName = concat(OnlineRetailer, '_', substring(SalesMonth, 1, 4), '_', substring(SalesMonth, 6, 2))) ~> addFileNameColumn",
 				"aggregateDailySales sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     input(",
-				"          OnlineRetailer as string,",
-				"          SalesMonth as string,",
-				"          Title as string,",
-				"          Vintage as string,",
-				"          Variety as string,",
-				"          Score as string,",
-				"          ListPrice as string,",
-				"          Quantity as string",
-				"     ),",
 				"     rowUrlColumn:'FileName',",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> CeleseteAggregatedData"
+				"     skipDuplicateMapOutputs: true,",
+				"     preCommands: [],",
+				"     postCommands: []) ~> CeleseteAggregatedData"
 			]
 		}
 	}

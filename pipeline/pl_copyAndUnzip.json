@@ -46,19 +46,7 @@
 						}
 					},
 					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "abs_copyzip",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "abs_destination",
-						"type": "DatasetReference"
-					}
-				]
+				}
 			}
 		],
 		"folder": {

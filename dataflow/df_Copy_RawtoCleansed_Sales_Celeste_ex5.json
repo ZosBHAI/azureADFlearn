@@ -8,27 +8,15 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"dataset": {
-						"referenceName": "abs_csv_raw_Celeste_ex5",
-						"type": "DatasetReference"
-					},
 					"name": "SourceCSVCeleste",
 					"description": "Import data from abs_csv_raw_Celeste_v3"
 				}
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "abs_csv_cleansed_Celeste_ex5",
-						"type": "DatasetReference"
-					},
 					"name": "sinkCSVCleansedCeleste"
 				},
 				{
-					"dataset": {
-						"referenceName": "abs_csv_cleansed_Celeste_ErrorRows_ex5",
-						"type": "DatasetReference"
-					},
 					"name": "sinkErrorLog"
 				}
 			],
@@ -78,8 +66,7 @@
 				"          Quantity as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> SourceCSVCeleste",
+				"     validateSchema: false) ~> SourceCSVCeleste",
 				"AggregateDailySales compose(mapColumn(",
 				"          OnlineRetailer,",
 				"          SalesMonth,",
@@ -116,9 +103,6 @@
 				"splitCleanandErrorRows@CleanRows sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     rowUrlColumn:'FileName',",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
@@ -135,13 +119,12 @@
 				"          ListPrice,",
 				"          FileName,",
 				"          Quantity",
-				"     )) ~> sinkCSVCleansedCeleste",
+				"     ),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sinkCSVCleansedCeleste",
 				"addErrorFileName sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     rowUrlColumn:'ErrorFileName',",
-				"     umask: 0022,",
-				"     preCommands: [],",
-				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 2,",
@@ -160,7 +143,9 @@
 				"          IsErrorRow,",
 				"          hasErrorRow,",
 				"          ErrorFileName",
-				"     )) ~> sinkErrorLog"
+				"     ),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sinkErrorLog"
 			]
 		}
 	}

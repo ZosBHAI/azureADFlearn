@@ -15,10 +15,6 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataset": {
-						"referenceName": "readJson",
-						"type": "DatasetReference"
-					},
 					"fieldList": [
 						"childItems"
 					],
@@ -86,106 +82,8 @@
 										"fileExtension": ".txt"
 									}
 								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"mappings": [
-										{
-											"source": {
-												"path": "$['YearMonth']"
-											},
-											"sink": {
-												"name": "SalesMonth",
-												"type": "String"
-											}
-										},
-										{
-											"source": {
-												"path": "$['StoreName']"
-											},
-											"sink": {
-												"name": "OnlineRetailer",
-												"type": "String"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['Product']"
-											},
-											"sink": {
-												"name": "Title",
-												"type": "String"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['Vintage']"
-											},
-											"sink": {
-												"name": "Vintage"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['Variety']"
-											},
-											"sink": {
-												"name": "Variety"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['Score']"
-											},
-											"sink": {
-												"name": "Score"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['SalesPrice']"
-											},
-											"sink": {
-												"name": "ListPrice",
-												"type": "String"
-											}
-										},
-										{
-											"source": {
-												"path": "$['Sales']['SalesQty']"
-											},
-											"sink": {
-												"name": "Quantity",
-												"type": "String"
-											}
-										}
-									]
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "jsonVerdeParameter",
-									"type": "DatasetReference",
-									"parameters": {
-										"filename": {
-											"value": "@item().name",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "verdeCSV",
-									"type": "DatasetReference",
-									"parameters": {
-										"destinationFile": {
-											"value": "@concat(substring(item().name, 0, sub(length(item().name),5)), '.csv')",
-											"type": "Expression"
-										}
-									}
-								}
-							]
+								"enableStaging": false
+							}
 						}
 					]
 				}

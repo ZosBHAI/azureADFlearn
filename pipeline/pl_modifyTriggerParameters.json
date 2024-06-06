@@ -244,6 +244,9 @@
 				"type": "String"
 			}
 		},
+		"folder": {
+			"name": "ExamplePipeline"
+		},
 		"annotations": []
 	}
 }

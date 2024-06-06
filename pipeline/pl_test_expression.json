@@ -25,6 +25,9 @@
 				"type": "String"
 			}
 		},
+		"folder": {
+			"name": "ExamplePipeline"
+		},
 		"annotations": [],
 		"lastPublishTime": "2024-04-25T06:42:40Z"
 	},

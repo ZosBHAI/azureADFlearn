@@ -1,0 +1,27 @@
+{
+	"name": "pl_dummy",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "text",
+					"value": ""
+				}
+			}
+		],
+		"variables": {
+			"text": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}

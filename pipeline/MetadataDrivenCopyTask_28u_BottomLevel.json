@@ -43,24 +43,6 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
-													"dataflow": {
-														"referenceName": "df_mdct_partitioned_parameterised",
-														"type": "DataFlowReference",
-														"parameters": {
-															"Destination1": {
-																"value": "'@json(item().SinkObjectSettings).fileSystem}/@{json(item().SinkObjectSettings).folderPath}/@{json(item().SinkObjectSettings).fileName'",
-																"type": "Expression"
-															},
-															"cw_schema": {
-																"value": "'@{json(item().SourceObjectSettings).schema}'",
-																"type": "Expression"
-															},
-															"cw_table": {
-																"value": "'@{json(item().SourceObjectSettings).table}'",
-																"type": "Expression"
-															}
-														}
-													},
 													"compute": {
 														"coreCount": 8,
 														"computeType": "General"
@@ -282,24 +264,6 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"dataflow": {
-												"referenceName": "df_mdct_partitioned_parameterised",
-												"type": "DataFlowReference",
-												"parameters": {
-													"Destination1": {
-														"value": "'@json(item().SinkObjectSettings).fileSystem}/@{json(item().SinkObjectSettings).folderPath}/@{json(item().SinkObjectSettings).fileName'",
-														"type": "Expression"
-													},
-													"cw_schema": {
-														"value": "'@{json(item().SourceObjectSettings).schema}'",
-														"type": "Expression"
-													},
-													"cw_table": {
-														"value": "'@{json(item().SourceObjectSettings).table}'",
-														"type": "Expression"
-													}
-												}
-											},
 											"compute": {
 												"coreCount": 8,
 												"computeType": "General"

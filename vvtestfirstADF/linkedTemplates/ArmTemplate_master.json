@@ -145,24 +145,6 @@
 					},
 					"ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl": {
 						"value": "[parameters('ls_azurekeyvault_gen2_access_properties_typeProperties_baseUrl')]"
-					}
-				}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "vvtestfirstADF_ArmTemplate_1",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2018-02-01",
-			"properties": {
-				"mode": "incremental",
-				"templateLink": {
-					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": {
-					"factoryName": {
-						"value": "[parameters('factoryName')]"
 					},
 					"ls_adls_parameterized_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_parameterized_properties_typeProperties_url')]"
@@ -196,18 +178,16 @@
 					}
 				}
 			},
-			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_0')]"
-			]
+			"dependsOn": []
 		},
 		{
-			"name": "vvtestfirstADF_ArmTemplate_2",
+			"name": "vvtestfirstADF_ArmTemplate_1",
 			"type": "Microsoft.Resources/deployments",
 			"apiVersion": "2018-02-01",
 			"properties": {
 				"mode": "incremental",
 				"templateLink": {
-					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
 					"contentVersion": "1.0.0.0"
 				},
 				"parameters": {
@@ -223,7 +203,7 @@
 				}
 			},
 			"dependsOn": [
-				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_1')]"
+				"[resourceId('Microsoft.Resources/deployments', 'vvtestfirstADF_ArmTemplate_0')]"
 			]
 		}
 	]
